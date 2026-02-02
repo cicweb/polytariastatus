@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Polytoria Status Tracker</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 50px;
+  }
+  .status {
+    font-size: 2em;
+    margin-top: 20px;
+  }
+  .up {
+    color: green;
+  }
+  .down {
+    color: red;
+  }
+</style>
+</head>
+<body>
+
+<h1>Polytoria Status Tracker 🌐</h1>
+<div id="statusBox" class="status">Checking...</div>
+
+<script>
+const statusBox = document.getElementById("statusBox");
+
+// Your backend endpoint that checks if Polytoria is up
+const POLYTORIA_STATUS_URL = "https://api.allorigins.win/raw?url=https://polytoria.com/";
+
+async function checkStatus() {
+  try {
+    // Try fetching the Polytoria site HTML through an open CORS proxy
+    const res = await fetch(POLYTORIA_STATUS_URL, { method: "GET" });
+
+    if (res.ok) {
+      // If website loaded normally
+      statusBox.textContent = "🟢 Polytoria is UP!";
+      statusBox.className = "status up";
+    } else {
+      // If not HTTP 200
+      statusBox.textContent = `🔴 Polytoria returned status ${res.status}`;
+      statusBox.className = "status down";
+    }
+  } catch (e) {
+    // Network error => likely down/unreachable
+    statusBox.textContent = "🔴 Polytoria seems DOWN";
+    statusBox.className = "status down";
+  }
+}
+
+// Check once now, then every minute
+checkStatus();
+setInterval(checkStatus, 60000);
+</script>
+
+</body>
+</html>
