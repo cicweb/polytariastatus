@@ -10,7 +10,7 @@ This repository contains only the API.
 ## Base URL
 
 ```
-https://api.polytariastatus.ziadn6b.workers.dev
+https://polytariastatus.ziadn6b.workers.dev
 ```
 
 ---
@@ -81,7 +81,7 @@ This allows the API to be safely consumed from browsers.
 ## Usage Example (JavaScript)
 
 ```js
-fetch("https://api.polytariastatus.ziadn6b.workers.dev/api/status")
+fetch("https://polytariastatus.ziadn6b.workers.dev/api/status")
   .then(res => res.json())
   .then(data => {
     console.log(data.status);
@@ -125,4 +125,5 @@ The Worker entry point is worker.js.
 ---
 
 ## License
+
 MIT
