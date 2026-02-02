@@ -21,7 +21,9 @@ export default {
   }
 
   return new Response(JSON.stringify({ status, httpStatus: code, time: new Date().toISOString() }), {
-    headers: { "Content-Type": "application/json" }
+    headers: { 
+      "Content-Type": "application/json" 
+      "Access-Control-Allow-Origin": "https://polysts.surge.sh"}
   });
 }
 
