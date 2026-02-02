@@ -21,11 +21,14 @@ export default {
   }
 
   return new Response(JSON.stringify({ status, httpStatus: code, time: new Date().toISOString() }), {
-    headers: { 
-      "Content-Type": "application/json" 
-      "Access-Control-Allow-Origin": "https://polysts.surge.sh"}
-  });
-}
+   headers: {
+          "Access-Control-Allow-Origin": "https://polysts.surge.sh",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        }
+      });
+    }
+
 
 
     // Serve HTML page
