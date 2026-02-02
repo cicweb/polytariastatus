@@ -4,31 +4,34 @@ export default {
 
     // Endpoint: /api/status → returns JSON
     if (url.pathname === "/api/status") {
-      const POLYTORIA_URL = "https://api.allorigins.win/raw?url=https://polytoria.com/";
       let status = "down";
-
+      let code = 0;
       try {
-        const res = await fetch(POLYTORIA_URL);
-        if (res.ok) status = "up";
+        const res = await fetch("https://polytoria.com/", { method: "GET" });
+        code = res.status;
+        status = res.ok ? "up" : "down";
       } catch (e) {
         status = "down";
+        code = 0; // network failure
       }
 
       return new Response(JSON.stringify({
         status,
+        httpStatus: code,
         time: new Date().toISOString()
       }), {
         headers: { "Content-Type": "application/json" }
       });
     }
 
-    // Otherwise: serve your existing fancy HTML
+    // Serve HTML page
     return new Response(`<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Polytoria Status</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
   body {
@@ -40,42 +43,32 @@ export default {
   }
   .status-card {
     background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(15px);
+    backdrop-filter: blur(12px);
     border-radius: 25px;
     padding: 60px 80px;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
   }
   .status-title {
     font-size: 3em;
     margin-bottom: 20px;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
   }
-  .status-up { color: #00ff6a; animation: pulseUp 1.5s infinite; }
-  .status-down { color: #ff4b4b; animation: pulseDown 1.5s infinite; }
-  @keyframes pulseUp {
-    0%,100% { text-shadow: 0 0 20px #00ff6a,0 0 30px #00ff6a; }
-    50% { text-shadow: 0 0 40px #00ff6a,0 0 60px #00ff6a; }
-  }
-  @keyframes pulseDown {
-    0%,100% { text-shadow: 0 0 20px #ff4b4b,0 0 30px #ff4b4b; }
-    50% { text-shadow: 0 0 40px #ff4b4b,0 0 60px #ff4b4b; }
-  }
+  .status-up { color: #00ff6a; }
+  .status-down { color: #ff4b4b; }
   .status-icon { font-size: 5em; margin-bottom: 20px; display: block; animation: bounce 1.2s infinite; }
   @keyframes bounce {
     0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+    50% { transform: translateY(-10px); }
   }
-  .footer { position: absolute; bottom: 20px; font-size: 0.9em; color: rgba(255,255,255,0.6); }
 </style>
 </head>
 <body>
 <div class="status-card">
-  <span id="statusIcon" class="status-icon">🔄</span>
+  <i id="statusIcon" class="fas fa-sync status-icon"></i>
   <div id="statusText" class="status-title">Checking...</div>
   <div id="lastChecked">Last checked: --</div>
 </div>
-<div class="footer">Fancy Polytoria Status Page 🌐</div>
 <script>
 async function checkStatus() {
   try {
@@ -87,19 +80,27 @@ async function checkStatus() {
     if (data.status === "up") {
       statusText.textContent = "Polytoria is UP!";
       statusText.className = "status-title status-up";
-      statusIcon.textContent = "✅";
-      statusIcon.className = "status-icon status-up";
+      statusIcon.className = "fas fa-check status-icon status-up";
+    } else if (data.httpStatus === 524) {
+      statusText.textContent = "Polytoria timed out (524)";
+      statusText.className = "status-title status-down";
+      statusIcon.className = "fas fa-clock status-icon status-down";
     } else {
       statusText.textContent = "Polytoria is DOWN!";
       statusText.className = "status-title status-down";
-      statusIcon.textContent = "❌";
-      statusIcon.className = "status-icon status-down";
+      statusIcon.className = "fas fa-times status-icon status-down";
     }
 
     document.getElementById("lastChecked").textContent =
       "Last checked: " + new Date(data.time).toLocaleTimeString();
   } catch (err) {
     console.error(err);
+    const statusText = document.getElementById("statusText");
+    const statusIcon = document.getElementById("statusIcon");
+    statusText.textContent = "Error checking status";
+    statusText.className = "status-title status-down";
+    statusIcon.className = "fas fa-exclamation-triangle status-icon status-down";
+    document.getElementById("lastChecked").textContent = "";
   }
 }
 
