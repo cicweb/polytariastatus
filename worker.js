@@ -4,25 +4,27 @@ export default {
 
     // Endpoint: /api/status → returns JSON
     if (url.pathname === "/api/status") {
-      let status = "down";
-      let code = 0;
-      try {
-        const res = await fetch("https://polytoria.com/", { method: "GET" });
-        code = res.status;
-        status = res.ok ? "up" : "down";
-      } catch (e) {
-        status = "down";
-        code = 0; // network failure
+  let status = "down";
+  let code = 0;
+  try {
+    const res = await fetch("https://polytoria.com/", {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
       }
+    });
+    code = res.status;
+    status = res.ok ? "up" : "down";
+  } catch (e) {
+    status = "down";
+    code = 0;
+  }
 
-      return new Response(JSON.stringify({
-        status,
-        httpStatus: code,
-        time: new Date().toISOString()
-      }), {
-        headers: { "Content-Type": "application/json" }
-      });
-    }
+  return new Response(JSON.stringify({ status, httpStatus: code, time: new Date().toISOString() }), {
+    headers: { "Content-Type": "application/json" }
+  });
+}
+
 
     // Serve HTML page
     return new Response(`<!DOCTYPE html>
